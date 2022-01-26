@@ -4,14 +4,26 @@
       <div class="modal-card">
          <header class="modal-card-head">
             <p class="modal-card-title">Edit item</p>
-            <button class="delete" aria-label="close" @click="onDiscard"></button>
+            <button
+               class="delete"
+               aria-label="close"
+               @click="onDiscard"
+            ></button>
          </header>
          <section class="modal-card-body">
             <div class="is-flex is-flex-direction-column is-align-items-start">
                <label class="label">Name:</label>
-               <input class="input" type="text" placeholder="" name="name" v-model="itemData.name" />
+               <input
+                  class="input"
+                  type="text"
+                  placeholder=""
+                  name="name"
+                  v-model="itemData.name"
+               />
             </div>
-            <div class="is-flex is-flex-direction-column is-align-items-start mt-5">
+            <div
+               class="is-flex is-flex-direction-column is-align-items-start mt-5"
+            >
                <label class="label">Status:</label>
                <div class="select">
                   <select name="status" v-model="itemData.status">
@@ -41,13 +53,14 @@ export default {
          default: () => ({})
       }
    },
-   setup(props, {emit}) {
+   setup(props, { emit }) {
       const itemData = ref({
          name: props.data.name,
          status: props.data.status
-      }); 
+      })
 
-      const onSave = () => emit('save', itemData.value.name, itemData.value.status)
+      const onSave = () =>
+         emit('save', itemData.value.name, itemData.value.status)
       const onDiscard = () => emit('close')
       return { itemData, onDiscard, onSave }
    }
