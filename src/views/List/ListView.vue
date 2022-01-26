@@ -10,18 +10,27 @@
             />
          </div>
       </div>
-      <Table :content="tableContent" :config="tableConfig" />
+      <Table :content="tableContent" :config="tableConfig" @select="onSelect" />
+      <ListItemEditor
+         v-if="showEditor"
+         :data="itemData"
+         @close="onCloseEditor"
+         @save="onSaveChanges"
+      />
    </div>
 </template>
 <script>
 import Table from '@/components/Table.vue'
-import { computed, onMounted, reactive } from 'vue'
+import ListItemEditor from './components/ListItemEditor.vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { filterList, mapList } from './listHelper'
 import dummy from '@/assets/dummy.json'
 import timeout from 'q'
 export default {
-   components: { Table },
+   components: { Table, ListItemEditor },
    setup() {
+      const showEditor = ref(false)
+
       const tableConfig = {
          columns: [
             { key: 'id', header: 'ID' },
@@ -32,6 +41,7 @@ export default {
          ]
       }
       const state = reactive({
+         currentItem: null,
          items: [],
          initLoading: true,
          search: '',
@@ -40,9 +50,25 @@ export default {
       const tableContent = computed(() =>
          state.items.filter(item => filterList(item, state.search)).map(mapList)
       )
+      const itemData = computed(() => 
+         state.currentItem
+      )
       const onInput = ({ target: { value } }) => {
          clearTimeout(timeout)
          state.timeout = setTimeout(() => (state.search = value), 500)
+      }
+      const onSelect = row => {
+         state.currentItem = row
+         showEditor.value = true
+      }
+      const onSaveChanges = (name, status) => {
+         const item = state.items.find(item => item.id == state.currentItem.id)
+         item.name = name
+         item.status = status
+         showEditor.value = false
+      }
+      const onCloseEditor = () => {
+         showEditor.value = false
       }
       const mockRequest = () => {
          return new Promise(resolve => {
@@ -56,7 +82,16 @@ export default {
          await mockRequest()
          state.loading = false
       })
-      return { tableContent, tableConfig, onInput }
+      return {
+         itemData,
+         showEditor,
+         tableContent,
+         tableConfig,
+         onInput,
+         onSelect,
+         onSaveChanges,
+         onCloseEditor
+      }
    }
 }
 </script>
